@@ -1,7 +1,7 @@
-# docker-presto-cluster [![CircleCI](https://circleci.com/gh/Lewuathe/docker-presto-cluster.svg?style=svg)](https://circleci.com/gh/Lewuathe/docker-presto-cluster)
+# docker-minio-presto-cluster
 
-docker-presto-cluster is a simple tool for launching multiple node [Presto](https://prestosql.io/) cluster on docker container.
-The image is synched with the master branch of [presto repository](https://github.com/prestosql/presto). Therefore you can try the latest presto for developing purpose easily.
+docker-minio-presto-cluster is a simple tool for launching multiple node [Presto](https://prestosql.io/) cluster talking to a minio cluster on docker container.
+The image is synched with the master branch of [presto repository](https://github.com/prestosql/presto) and master branch of [minio repository](https://github.com/minio/minio)
 
 # Images
 
@@ -57,6 +57,8 @@ Run
 ```
 $ docker-compose up -d
 ```
+
+Based on https://github.com/starburstdata/presto-minio and https://github.com/Lewuathe/docker-presto-cluster
 
 # LICENSE
 

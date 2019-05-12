@@ -2,20 +2,118 @@ version: '3'
 
 services:
   coordinator:
-    image: lewuathe/presto-coordinator:307-SNAPSHOT
+    image: lewuathe/presto-coordinator:310
     ports:
       - "8080:8080"
     container_name: "coordinator"
     command: coordinator
+    volumes: 
+      - './presto/minio.properties:/usr/lib/presto/etc/catalog/minio.properties'
+      - './hadoop/lib/json-serde-1.3.8-jar-with-dependencies.jar:/usr/lib/presto/lib/plugin/hive-hadoop2/json-serde-1.3.8-jar-with-dependencies.jar'
+  hadoop:
+    hostname: hadoop-master
+    image: 'prestodb/cdh5.13-hive:latest'
+    container_name: hadoop-master
+    volumes:
+      - './hadoop/core-site.xml:/etc/hadoop/conf/core-site.xml'
+      - './hadoop/lib/json-udf-1.3.8-jar-with-dependencies.jar:/usr/lib/hive/lib/json-udf-1.3.8-jar-with-dependencies.jar'
+      - './hadoop/lib/json-serde-1.3.8-jar-with-dependencies.jar:/usr/lib/hive/lib/json-serde-1.3.8-jar-with-dependencies.jar'
+
   worker0:
-    image: lewuathe/presto-worker:307-SNAPSHOT
+    image: lewuathe/presto-worker:310
     container_name: "worker0"
     ports:
       - "8081:8081"
     command: worker0
   worker1:
-    image: lewuathe/presto-worker:307-SNAPSHOT
+    image: lewuathe/presto-worker:310
     container_name: "worker1"
     ports:
       - "8082:8081"
     command: worker1
+  minio1:
+    image: minio/minio
+    hostname: minio1
+    volumes:
+      - minio1-data:/export
+    ports:
+      - "9001:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      placement:
+        constraints:
+          - node.labels.minio1==true
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio2:
+    image: minio/minio
+    hostname: minio2
+    volumes:
+      - minio2-data:/export
+    ports:
+      - "9002:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      placement:
+        constraints:
+          - node.labels.minio2==true
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio3:
+    image: minio/minio
+    hostname: minio3
+    volumes:
+      - minio3-data:/export
+    ports:
+      - "9003:9000"
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      placement:
+        constraints:
+          - node.labels.minio3==true
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+  minio4:
+    image: minio/minio
+    hostname: minio4
+    volumes:
+      - minio4-data:/export
+    ports:
+      - "9004:9000"
+
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      placement:
+        constraints:
+          - node.labels.minio4==true
+    command: server http://minio1/export http://minio2/export http://minio3/export http://minio4/export
+
+volumes:
+  minio1-data:
+  minio2-data:
+  minio3-data:
+  minio4-data:
